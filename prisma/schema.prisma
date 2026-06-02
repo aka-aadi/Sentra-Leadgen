@@ -1,0 +1,99 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Campaign {
+  id         String   @id @default(cuid())
+  name       String
+  query      String
+  industry   String?
+  location   String?
+  type       String   @default("LOCAL") // LOCAL | COMPANY | PEOPLE
+  status     String   @default("IDLE")
+  totalFound Int      @default(0)
+  progress   Int      @default(0)
+  leadLimit  Int      @default(10)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  leads      Lead[]
+}
+
+model Lead {
+  id               String   @id @default(cuid())
+  campaignId       String
+  campaign         Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  companyName      String
+  companyDomain    String?
+  companyWebsite   String?
+  ownerName        String?
+  companyAddress   String?
+  contactEmail     String?
+  contactPhone     String?
+  summary          String?
+  linkedinUrl      String?
+  employeeCount    String?
+  revenue          String?
+  enrichmentSource String?
+  score            Int      @default(0)
+  priority         String   @default("MEDIUM")
+  scoreReasoning   String?
+  source           String?
+  rawSnippet       String?
+  status           String   @default("NEW")
+  createdAt        DateTime @default(now())
+
+  // Decision-maker intelligence fields
+  decisionMakerName     String?
+  decisionMakerTitle    String?
+  decisionMakerEmail    String?
+  decisionMakerLinkedin String?
+
+  // AI intelligence fields
+  recentNews        String? // JSON: array of {title, snippet, date, url}
+  fundingStage      String? // e.g. Seed, Series A, Public
+  hiringSignals     String? // AI summary of job postings
+  techStack         String? // Technologies used
+  strategicInsights String? // AI-generated strategy analysis
+  buyingIntent      String? @default("UNKNOWN") // UNKNOWN | LOW | MEDIUM | HIGH
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([campaignId, companyName])
+  @@index([companyName])
+}
+
+model Settings {
+  id                   String   @id @default("default")
+  geminiApiKey         String   @default("")
+  googleSearchApiKey   String   @default("")
+  googleSearchEngineId String   @default("")
+  googleAiApiKey       String   @default("")
+  hunterApiKey         String   @default("")
+  clearbitApiKey       String   @default("")
+  apolloApiKey         String   @default("")
+  idealCustomerProfile String   @default("")
+  adminPassword        String   @default("Sentra@2026")
+
+  // Legacy credit counter (kept for backwards compat)
+  creditsUsed          Int      @default(0)
+  lastResetDate        DateTime @default(now())
+
+  // Tool enable/disable toggles
+  serperEnabled        Boolean  @default(true)
+  apolloEnabled        Boolean  @default(true)
+  geminiEnabled        Boolean  @default(true)
+
+  // Per-service credit tracking
+  serperCreditsUsed    Int      @default(0)
+  serperCreditsTotal   Int      @default(2500)
+  apolloCreditsUsed    Int      @default(0)
+  apolloCreditsTotal   Int      @default(50)
+  geminiCallsToday     Int      @default(0)
+  geminiCallsLimit     Int      @default(200)
+  lastCreditReset      DateTime @default(now())
+}
