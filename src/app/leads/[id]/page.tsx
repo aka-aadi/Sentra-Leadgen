@@ -36,8 +36,11 @@ function LeadDetailPageInner() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
   const rawSearchParams = useSearchParams();
+  // `from` carries the full previous URL (page + search + filters)
+  // Fall back to legacy `fromPage` param for compatibility
+  const from = rawSearchParams.get("from");
   const fromPage = rawSearchParams.get("fromPage") || "1";
-  const backHref = `/leads?page=${fromPage}`;
+  const backHref = from ? decodeURIComponent(from) : `/leads?page=${fromPage}`;
   const qc = useQueryClient();
 
   const { data: lead, isLoading, error } = useQuery({
@@ -80,7 +83,7 @@ function LeadDetailPageInner() {
     },
     onSuccess: () => { 
       toast.success("Lead deleted"); 
-      router.push("/leads");
+      router.push(backHref);
     },
     onError: () => { toast.error("Failed to delete lead. Please check server logs."); },
   });

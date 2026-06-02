@@ -10,7 +10,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface Lead {
@@ -67,16 +67,39 @@ function LeadsPageInner() {
   const qc = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [filterPriority, setFilterPriority] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
+
+  // All filter state lives in the URL — this is the single source of truth.
+  // This means navigating back with the correct URL always restores the exact state.
+  const search = searchParams.get("search") || "";
+  const filterPriority = searchParams.get("priority") || "";
+  const filterStatus = searchParams.get("status") || "";
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = 12;
+
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
   const [analyzingLead, setAnalyzingLead] = useState<string | null>(null);
-  
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
-  const page = parseInt(searchParams.get("page") || "1");
-  const limit = 12;
+  // Local input value for search so typing feels instant
+  const [searchInput, setSearchInput] = useState(search);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Keep local search input in sync if URL changes (e.g. from global header search)
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
+  // Helper: update URL params while preserving existing ones
+  const updateParams = (updates: Record<string, string>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([k, v]) => {
+      if (v) params.set(k, v);
+      else params.delete(k);
+    });
+    // Always reset to page 1 when a filter changes
+    params.set("page", updates.page ?? "1");
+    router.replace(`/leads?${params.toString()}`, { scroll: false });
+  };
 
   const setPage = (updater: number | ((p: number) => number)) => {
     const next = typeof updater === "function" ? updater(page) : updater;
@@ -85,23 +108,16 @@ function LeadsPageInner() {
     router.push(`/leads?${params.toString()}`, { scroll: false });
   };
 
-  // Reset page when filters change
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", "1");
-    // Only replace if we actually need to change the page param to 1 to avoid infinite loop
-    if (searchParams.get("page") !== "1") {
-      router.replace(`/leads?${params.toString()}`, { scroll: false });
-    }
-  }, [search, filterPriority, filterStatus]);
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      updateParams({ search: value, page: "1" });
+    }, 350);
+  };
 
-  // Sync search state from URL if it changes from the global header
-  useEffect(() => {
-    const urlSearch = searchParams.get("search");
-    if (urlSearch !== null && urlSearch !== search) {
-      setSearch(urlSearch);
-    }
-  }, [searchParams]);
+  const handlePriorityChange = (value: string) => updateParams({ priority: value, page: "1" });
+  const handleStatusChange = (value: string) => updateParams({ status: value, page: "1" });
 
   const { data, isLoading } = useQuery<{ leads: Lead[]; total: number }>({
     queryKey: ["leads", search, filterPriority, filterStatus, page],
@@ -281,17 +297,17 @@ function LeadsPageInner() {
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search companies, contacts..." className="w-full h-9 rounded-xl bg-card border border-border pl-9 pr-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+          <input value={searchInput} onChange={e => handleSearchChange(e.target.value)} placeholder="Search companies, contacts..." className="w-full h-9 rounded-xl bg-card border border-border pl-9 pr-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
         </div>
         <div className="flex items-center gap-1.5">
           <Filter className="h-3.5 w-3.5 text-muted-foreground" />
           {["","HOT","HIGH","MEDIUM","LOW"].map(p => (
-            <button key={p} onClick={() => setFilterPriority(p)} className={cn("text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors", filterPriority === p ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}>{p || "All"}</button>
+            <button key={p} onClick={() => handlePriorityChange(p)} className={cn("text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors", filterPriority === p ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}>{p || "All"}</button>
           ))}
         </div>
         <div className="flex items-center gap-1.5">
           {["","NEW","VERIFIED","CONTACTED","CONVERTED","DISCARDED"].map(s => (
-            <button key={s} onClick={() => setFilterStatus(s)} className={cn("text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors", filterStatus === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}>{s || "All"}</button>
+            <button key={s} onClick={() => handleStatusChange(s)} className={cn("text-[10px] font-bold px-2.5 py-1 rounded-lg transition-colors", filterStatus === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}>{s || "All"}</button>
           ))}
         </div>
       </div>
@@ -348,7 +364,7 @@ function LeadsPageInner() {
                 return (
                   <motion.div key={lead.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }} 
                     className="flex flex-col bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
-                    onClick={() => router.push(`/leads/${lead.id}?fromPage=${page}`)}
+                    onClick={() => router.push(`/leads/${lead.id}?from=${encodeURIComponent(`/leads?${searchParams.toString()}`)}`)}
                   >
                     <div className="p-5 flex flex-col flex-1">
                       <div className="flex justify-between items-start mb-4">
