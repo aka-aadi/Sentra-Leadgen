@@ -165,3 +165,57 @@ Once completed, simply navigate to your GCP VM's External IP Address in your bro
 `http://YOUR_EXTERNAL_IP`
 
 *(Note: The deployment maps internal port 3000 to external port 80, so you don't need to append :3000 to the URL).*
+
+---
+
+## Phase 6: Custom Domain with DuckDNS (Free)
+
+Because GCP ephemeral IP addresses can occasionally change, you should map your server to a free dynamic DNS provider like DuckDNS. This gives you a permanent domain name (e.g., `sentra.duckdns.org`) that automatically tracks your server's IP address.
+
+### 1. Register your Domain
+1. Go to [DuckDNS.org](https://www.duckdns.org/) and log in (via Google/GitHub).
+2. In the "Domains" section, type your desired subdomain (e.g., `sentra-leadgen`) and click **add domain**.
+3. Your new domain `sentra-leadgen.duckdns.org` is now created.
+4. At the top of the DuckDNS page, copy your account **Token**.
+
+### 2. Configure Auto-Update on your GCP Server
+You need to tell your GCP server to automatically ping DuckDNS every 5 minutes to update its IP address, ensuring your domain always points to the right place even if Google changes the IP.
+
+SSH back into your GCP VM and run the following commands:
+
+```bash
+# Create a folder for the DuckDNS script
+mkdir ~/duckdns
+cd ~/duckdns
+
+# Create the update script
+nano duck.sh
+```
+
+Paste the following into `duck.sh` (replace `YOUR_DOMAIN` with your subdomain, and `YOUR_TOKEN` with your DuckDNS token):
+```bash
+echo url="https://www.duckdns.org/update?domains=YOUR_DOMAIN&token=YOUR_TOKEN&ip=" | curl -k -o ~/duckdns/duck.log -K -
+```
+
+Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`).
+
+Make the script executable:
+```bash
+chmod 700 duck.sh
+```
+
+### 3. Schedule the Cron Job
+Set up a cron job to run this script every 5 minutes:
+```bash
+crontab -e
+```
+
+Scroll to the very bottom of the file and paste this line:
+```bash
+*/5 * * * * ~/duckdns/duck.sh >/dev/null 2>&1
+```
+
+Save and exit. Your server will now automatically keep DuckDNS updated with its IP address!
+
+You can now access your application from anywhere in the world at:
+**`http://YOUR_DOMAIN.duckdns.org`**
