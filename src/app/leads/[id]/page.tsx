@@ -168,7 +168,7 @@ function LeadDetailPageInner() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {lead.contactEmail && (
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0"><Mail className="h-4 w-4" /></div>
+                  <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0"><Mail className="h-4 w-4" /></div>
                   <div className="min-w-0">
                     <p className="text-xs text-muted-foreground">Email</p>
                     <a href={`mailto:${lead.contactEmail}`} className="text-sm font-medium text-foreground hover:text-primary truncate block">{lead.contactEmail}</a>
@@ -177,7 +177,7 @@ function LeadDetailPageInner() {
               )}
               {lead.contactPhone && (
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center text-green-600 shrink-0"><Phone className="h-4 w-4" /></div>
+                  <div className="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center text-green-600 dark:text-green-400 shrink-0"><Phone className="h-4 w-4" /></div>
                   <div className="min-w-0">
                     <p className="text-xs text-muted-foreground">Phone</p>
                     <span className="text-sm font-medium text-foreground truncate block">{lead.contactPhone}</span>
@@ -186,7 +186,7 @@ function LeadDetailPageInner() {
               )}
               {lead.companyWebsite && (
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shrink-0"><Globe className="h-4 w-4" /></div>
+                  <div className="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0"><Globe className="h-4 w-4" /></div>
                   <div className="min-w-0">
                     <p className="text-xs text-muted-foreground">Website</p>
                     <a href={lead.companyWebsite} target="_blank" className="text-sm font-medium text-foreground hover:text-primary truncate flex items-center gap-1">{lead.companyDomain || "Visit Site"} <ExternalLink className="h-3 w-3" /></a>
@@ -195,7 +195,7 @@ function LeadDetailPageInner() {
               )}
               {(lead.decisionMakerLinkedin || lead.linkedinUrl) && (
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-600 shrink-0"><Link2 className="h-4 w-4" /></div>
+                  <div className="h-8 w-8 rounded-full bg-cyan-100 dark:bg-cyan-900/40 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shrink-0"><Link2 className="h-4 w-4" /></div>
                   <div className="min-w-0">
                     <p className="text-xs text-muted-foreground">LinkedIn</p>
                     <a href={lead.decisionMakerLinkedin || lead.linkedinUrl!} target="_blank" className="text-sm font-medium text-foreground hover:text-primary truncate block">View Profile</a>
@@ -223,10 +223,10 @@ function LeadDetailPageInner() {
             <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b border-border pb-2">AI Intelligence</h3>
             
             {lead.decisionMakerName ? (
-              <div className="p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 shadow-sm">
+              <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/40 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="h-4 w-4 text-amber-600" />
-                  <span className="text-xs font-bold text-amber-700 uppercase tracking-wide">Decision Maker Detected</span>
+                  <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wide">Decision Maker Detected</span>
                 </div>
                 <p className="text-sm font-bold text-foreground">{lead.decisionMakerName}</p>
                 {lead.decisionMakerTitle && <p className="text-xs text-muted-foreground mt-0.5">{lead.decisionMakerTitle}</p>}
@@ -238,26 +238,26 @@ function LeadDetailPageInner() {
             )}
 
             {lead.strategicInsights && (
-              <div className="p-4 rounded-xl bg-gradient-to-r from-violet-50 to-indigo-50 border border-violet-100 shadow-sm">
+              <div className="p-4 rounded-xl bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800/40 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <Brain className="h-4 w-4 text-violet-600" />
-                  <span className="text-xs font-bold text-violet-700 uppercase tracking-wide">Strategic Analysis</span>
+                  <span className="text-xs font-bold text-violet-700 dark:text-violet-400 uppercase tracking-wide">Strategic Analysis</span>
                 </div>
                 <p className="text-sm text-foreground leading-relaxed">{lead.strategicInsights}</p>
               </div>
             )}
 
             <div className="flex items-center gap-2 flex-wrap">
-              {lead.fundingStage && <span className="text-xs font-bold text-green-700 bg-green-50 border border-green-100 rounded-lg px-3 py-1.5 shadow-sm">💰 {lead.fundingStage}</span>}
-              {lead.techStack && <span className="text-xs font-bold text-cyan-700 bg-cyan-50 border border-cyan-100 rounded-lg px-3 py-1.5 shadow-sm flex items-center gap-1.5"><Cpu className="h-3.5 w-3.5" />{lead.techStack}</span>}
-              {lead.hiringSignals && <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-1.5 shadow-sm flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5" />Hiring Spree</span>}
+              {lead.fundingStage && <span className="text-xs font-bold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 border border-green-100 dark:border-green-800/40 rounded-lg px-3 py-1.5 shadow-sm">💰 {lead.fundingStage}</span>}
+              {lead.techStack && <span className="text-xs font-bold text-cyan-700 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/30 border border-cyan-100 dark:border-cyan-800/40 rounded-lg px-3 py-1.5 shadow-sm flex items-center gap-1.5"><Cpu className="h-3.5 w-3.5" />{lead.techStack}</span>}
+              {lead.hiringSignals && <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800/40 rounded-lg px-3 py-1.5 shadow-sm flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5" />Hiring Spree</span>}
             </div>
 
             {newsItems.length > 0 && (
-              <div className="p-4 rounded-xl bg-blue-50/50 border border-blue-100 shadow-sm">
+              <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <Newspaper className="h-4 w-4 text-blue-600" />
-                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">Recent News</span>
+                  <span className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wide">Recent News</span>
                 </div>
                 <div className="space-y-3">
                   {newsItems.map((news, ni) => (
@@ -279,7 +279,7 @@ function LeadDetailPageInner() {
             <button
               onClick={() => intelligenceMut.mutate()}
               disabled={intelligenceMut.isPending}
-              className="inline-flex items-center gap-2 text-sm font-bold text-violet-600 hover:text-violet-700 px-4 py-2 rounded-xl bg-violet-50 hover:bg-violet-100 transition-all shadow-sm disabled:opacity-50"
+              className="inline-flex items-center gap-2 text-sm font-bold text-violet-600 dark:text-violet-400 hover:text-violet-700 px-4 py-2 rounded-xl bg-violet-50 dark:bg-violet-900/30 hover:bg-violet-100 dark:hover:bg-violet-900/50 transition-all shadow-sm disabled:opacity-50"
             >
               {intelligenceMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               {intelligenceMut.isPending ? "Analyzing..." : "Refresh Intelligence"}
@@ -287,7 +287,7 @@ function LeadDetailPageInner() {
             <button 
               onClick={() => deleteMut.mutate()} 
               disabled={deleteMut.isPending} 
-              className="inline-flex items-center gap-2 text-sm font-bold text-rose-600 hover:text-rose-700 px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 transition-all shadow-sm disabled:opacity-50"
+              className="inline-flex items-center gap-2 text-sm font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 px-4 py-2 rounded-xl bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-all shadow-sm disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4" /> {deleteMut.isPending ? "Deleting..." : "Delete Lead"}
             </button>

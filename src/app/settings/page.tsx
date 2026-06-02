@@ -68,9 +68,9 @@ function CreditBar({
     ? "text-amber-600"
     : "text-emerald-600";
   const bgColor = critical
-    ? "bg-rose-50 border-rose-200"
+    ? "bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800/40"
     : low
-    ? "bg-amber-50 border-amber-200"
+    ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/40"
     : "bg-card border-border";
 
   return (
@@ -88,7 +88,7 @@ function CreditBar({
         <div className="flex items-center gap-3">
           {(low || critical) && (
             <span className={cn("flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full",
-              critical ? "text-rose-700 bg-rose-100" : "text-amber-700 bg-amber-100"
+            critical ? "text-rose-700 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/40" : "text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40"
             )}>
               <AlertTriangle className="h-2.5 w-2.5" />
               {critical ? "Critical" : "Low"}
