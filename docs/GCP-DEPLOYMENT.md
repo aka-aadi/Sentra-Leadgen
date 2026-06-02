@@ -12,12 +12,14 @@ Because we map the SQLite database to a persistent Docker volume, **your data wi
 2. Create a new project (e.g., `sentra-production`).
 3. Navigate to **Compute Engine -> VM Instances** and click **Create Instance**.
 4. **Configuration (Critical for Free Tier):**
-   * **Region:** Choose a US region like `us-central1` (Iowa), `us-east1` (South Carolina), or `us-west1` (Oregon). *These are the only regions eligible for the free tier.*
+   * **Region:** Choose a US region like `us-central1` (Iowa), `us-east1` (South Carolina), or `us-west1` (Oregon). *These are the ONLY regions eligible for the free tier.*
    * **Machine Type:** Select `e2-micro` (2 vCPU, 1 GB memory).
-   * **Boot Disk:** Change the OS to **Ubuntu 22.04 LTS**. Increase the disk size up to **30 GB Standard Persistent Disk** (the maximum free limit).
+   * **Boot Disk:** Change the OS to **Ubuntu 22.04 LTS**. 
+     * ⚠️ **CRITICAL:** You MUST change the Boot Disk Type from "Balanced" to **Standard Persistent Disk**. If you leave it on Balanced or SSD, you will be charged. You can increase the size up to 30 GB (the maximum free limit).
    * **Firewall:** Check both **Allow HTTP traffic** and **Allow HTTPS traffic**.
-5. Click **Create**.
-6. Once spun up, note the **External IP Address** of your new VM.
+5. **Ignore the Monthly Estimate:** On the right side, GCP will show an estimated cost of ~$7.11/month. **This is completely normal.** Google's UI does not factor in your "Always Free" account credits here. As long as you selected `e2-micro` in a valid region and a `Standard` disk, Google will automatically apply a 100% discount credit to your invoice at the end of the month, making it $0.00.
+6. Click **Create**.
+7. Once spun up, note the **External IP Address** of your new VM.
 
 ---
 
