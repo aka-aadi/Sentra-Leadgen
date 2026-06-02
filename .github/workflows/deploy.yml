@@ -1,0 +1,40 @@
+name: Deploy to GCP
+
+on:
+  push:
+    branches: [ "master", "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.GCP_HOST }}
+          username: ${{ secrets.GCP_USERNAME }}
+          key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+          script: |
+            if [ ! -d "Sentra-Leadgen" ]; then
+              git clone https://github.com/aka-aadi/Sentra-Leadgen.git
+            fi
+            
+            cd Sentra-Leadgen
+            git fetch --all
+            git reset --hard origin/master || git reset --hard origin/main
+            
+            docker stop sentra-app || true
+            docker rm sentra-app || true
+            
+            docker build -t sentra-app-image .
+            
+            # Persistent volume sentra_db_data ensures local sqlite dev.db doesn't wipe on restart
+            docker run -d \
+              --name sentra-app \
+              -p 80:3000 \
+              --restart unless-stopped \
+              -v sentra_db_data:/app/prisma \
+              sentra-app-image
+              
+            # Run schema sync securely inside the container volume
+            docker exec sentra-app npx prisma db push
